@@ -1,0 +1,23 @@
+import datetime
+
+
+today = datetime.datetime.today()
+todaydetail = datetime.datetime.today()
+
+# 今日の日付
+print('----------------------------------')
+print(today)
+print(todaydetail)
+
+# 今日に日付：それぞれの値
+print('----------------------------------')
+print(today.year)
+print(today.month)
+print(today.day)
+print(todaydetail.year)
+print(todaydetail.month)
+print(todaydetail.day)
+print(todaydetail.hour)
+print(todaydetail.minute)
+print(todaydetail.second)
+print(todaydetail.microsecond)
