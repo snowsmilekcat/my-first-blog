@@ -4,7 +4,7 @@ from django.utils import timezone
 
 
 class Post(models.Model):
-    #クラスプロパティの定義
+    #クラスプロパティ(テーブルの列の元になる)の定義
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
     text = models.TextField()
