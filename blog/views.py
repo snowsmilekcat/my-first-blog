@@ -10,6 +10,10 @@ def post_list(request):
     posts = Post.objects.filter(published_date__lte=timezone.now()).order_by('published_date')#Postモデルより、データの取り出し。
     return render(request,'blog/post_list.html',{'posts': posts})
 
+def post_draft_list(request):
+    posts = Post.objects.filter(published_date__isnull=True).order_by('created_date')#草稿一覧のため、投稿日がNULLのものだけを取得する。
+    return render(request, 'blog/post_draft_list.html', {'posts': posts})
+
 def post_detail(request, pk):
     post = get_object_or_404(Post, pk=pk)
     return render(request, 'blog/post_detail.html', {'post': post})
@@ -24,7 +28,7 @@ def post_new(request):
         if form.is_valid():#画面のチェック処理で問題ないかで分岐
             post = form.save(commit=False)
             post.author = request.user
-            post.published_date = timezone.now()
+            #post.published_date = timezone.now() #草稿として保存するため、廃止
             post.save()#更新内容をデータベースに反映
             return redirect('post_detail', pk=post.pk)
     else:
@@ -38,9 +42,19 @@ def post_edit(request, pk):#編集のため、今保有しているpkも取得�
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
-            post.published_date = timezone.now()
+            #post.published_date = timezone.now() #草稿として保存するため、廃止
             post.save()
             return redirect('post_detail', pk=post.pk)
     else:
         form = PostForm(instance=post)
     return render(request, 'blog/post_edit.html', {'form': form})
+
+def post_publish(request, pk):
+    post = get_object_or_404(Post, pk=pk)
+    post.publish()
+    return redirect('post_detail', pk=pk)
+
+def post_remove(request, pk):
+    post = get_object_or_404(Post, pk=pk)
+    post.delete()
+    return redirect('post_list')
