@@ -3,9 +3,9 @@ from django.contrib.auth import logout#ログアウト用
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.utils import timezone
-from .models import Post#modelsファイル内のPostクラスの参照
+from .models import Post,Comment#modelsファイル内のPostクラスの参照
 from django.shortcuts import render, get_object_or_404#エラー画面表示のためのインポート
-from .forms import PostForm
+from .forms import PostForm, CommentForm
 
 # Create your views here.
 def post_list(request):
@@ -64,3 +64,28 @@ def post_remove(request, pk):
 
 def logout_view(request):
     logout(request)
+
+def add_comment_to_post(request, pk):
+    post = get_object_or_404(Post, pk=pk)
+    if request.method == "POST":#リクエストがPOSTかどうかで制御を分岐
+        form = CommentForm(request.POST)#コメントフォームの初期化
+        if form.is_valid():#画面のチェック処理で問題ないかで分岐
+            comment = form.save(commit=False)
+            comment.post = post
+            comment.save()#更新内容をデータベースに反映
+            return redirect('post_detail', pk=post.pk)#詳細画面へのリダイレクト※キーは主キー
+    else:
+        form = CommentForm()
+    return render(request, 'blog/add_comment_to_post.html', {'form': form})
+
+@login_required
+def comment_approve(request, pk):
+    comment = get_object_or_404(Comment, pk=pk)
+    comment.approve()
+    return redirect('post_detail', pk=comment.post.pk)
+
+@login_required
+def comment_remove(request, pk):
+    comment = get_object_or_404(Comment, pk=pk)
+    comment.delete()
+    return redirect('post_detail', pk=comment.post.pk)
